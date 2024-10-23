@@ -115,8 +115,9 @@ export const UserNavbar = () => {
                 const updatedData = {
                     firstName: data.firstname,
                     lastName: data.lastname,
-                    depositWallet: data.DepositWallet.availableBal,
-                    interestWallet: interest.data.interest, // update if more fields are available
+                    depositWallet:
+                        data.DepositWallet.availableBal.toLocaleString(),
+                    interestWallet: interest.data.interest.toLocaleString(), // update if more fields are available
                 }
 
                 setUserData(updatedData)
@@ -217,17 +218,17 @@ export const UserNavbar = () => {
                                                 Account Balance
                                             </h2>
                                             <p className="text-sm font-light">
-                                                Deposit Wallet: $
-                                                {userData.depositWallet.toFixed(
-                                                    2,
-                                                )}
+                                                Deposit Wallet:
                                             </p>
+                                            <span>
+                                                $ {userData.depositWallet}.00
+                                            </span>
                                             <p className="text-sm font-light">
-                                                Interest Wallet: $
-                                                {userData.interestWallet.toFixed(
-                                                    2,
-                                                )}
+                                                Interest Wallet:
                                             </p>
+                                            <span>
+                                                {userData.interestWallet}.00
+                                            </span>
                                         </div>
                                         {/* Content */}
                                         <div className="flex flex-col gap-3">
