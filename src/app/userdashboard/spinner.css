@@ -1,0 +1,29 @@
+.spinner {
+  width: 50px; /* Adjust the size as needed */
+  height: 50px;
+  border-radius: 50%;
+  border: 5px solid transparent;
+  border-top: 5px solid red; /* Starting color */
+  animation: spin 1s linear infinite, colorChange 2s linear infinite; /* Add the color change animation */
+}
+
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes colorChange {
+  0% {
+    border-top-color: green; /* Starting color */
+  }
+  50% {
+    border-top-color: yellow; /* Middle color */
+  }
+  100% {
+    border-top-color: green; /* Ending color */
+  }
+}
