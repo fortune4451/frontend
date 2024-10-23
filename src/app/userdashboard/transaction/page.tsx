@@ -137,7 +137,7 @@ export default function TransactionPage(): JSX.Element {
             accessorKey: 'createdAt',
             header: 'Date',
             cell: ({ row }) => {
-                const createdAt = new Date(row.getValue('createdAt'))
+                const createdAt = row.getValue('createdAt') as Date
                 const date = createdAt.toLocaleDateString()
                 const time = createdAt.toLocaleTimeString([], {
                     hour: '2-digit',
