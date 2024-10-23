@@ -40,7 +40,6 @@ interface RoiChartProps {
 
 const RoiChart = ({ data = [] }: RoiChartProps) => {
     const chartWidth = data.length > 20 ? data.length * 50 : '100%'
-    console.log('This is the data', { data })
 
     return (
         <Card>

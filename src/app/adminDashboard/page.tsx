@@ -35,8 +35,6 @@ export default function Home() {
     const [token, setToken] = useState<string | null>(null)
 
     const countRecentItems = (data: any[]) => {
-        // console.log('started')
-        // console.log(data)
         const sevenDaysAgo = new Date()
         sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7)
 
@@ -222,7 +220,6 @@ export default function Home() {
 
                 setTotalTransactions(totalTrx)
                 setDashboardData(data.data)
-                console.log(dashboardData)
                 countRecentItems(data.data)
                 const { dateRange, data: monthlyUsers } = countUsersByMonth(
                     data.data,

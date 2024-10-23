@@ -16,6 +16,7 @@ import {
     DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
 import { baseUrl } from '@/utils/constants'
+import { useToast } from '@chakra-ui/react'
 
 type Props = {}
 
@@ -38,7 +39,7 @@ export default function UsersPage({}: Props): JSX.Element {
     const [data, setData] = useState<Transaction[]>([])
     const [token, setToken] = useState<string | null>(null)
     const [loading, setLoading] = useState(true)
-    console.log(data)
+    const toast = useToast()
 
     // Fetch pending transactions data from the API and refresh every 3 seconds
     useEffect(() => {
@@ -63,7 +64,6 @@ export default function UsersPage({}: Props): JSX.Element {
 
                 const fetchedData = transactions.data.reverse()
                 setData(fetchedData)
-                console.log({ data })
                 // Update local storage with the latest data
                 localStorage.setItem(
                     'transactionsData',
@@ -158,10 +158,14 @@ export default function UsersPage({}: Props): JSX.Element {
         navigator.clipboard
             .writeText(walletAddress)
             .then(() => {
-                console.log(
-                    'Wallet address copied to clipboard:',
-                    walletAddress,
-                )
+                toast({
+                    title: 'Wallet address copied!',
+                    description:
+                        'The wallet address has been successfully copied to your clipboard.',
+                    status: 'success',
+                    duration: 3000,
+                    isClosable: true,
+                })
             })
             .catch(error => {
                 console.error('Failed to copy wallet address:', error)

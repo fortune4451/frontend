@@ -184,7 +184,6 @@ const UserDashboard = () => {
                     })
 
                     // Set the fetched data to state
-                    console.log({ userProfits })
                     setProfit(userProfits)
                     setDashboardData(prevData => ({
                         ...prevData,

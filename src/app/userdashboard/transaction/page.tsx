@@ -7,7 +7,6 @@ import { DataTable } from './dataTable'
 import { baseUrl } from '@/utils/constants'
 import { format } from 'date-fns'
 
-
 // Transaction type definition
 type Transaction = {
     uuid: string
@@ -51,9 +50,6 @@ export default function TransactionPage(): JSX.Element {
                     isApproved: transaction.isApproved,
                     createdAt: new Date(transaction.createdAt).toLocaleString(),
                 }))
-
-                // Sort the data in descending order based on createdAt
-                console.log({ formattedData })
 
                 setData(formattedData.reverse())
             } catch (error) {
@@ -142,11 +138,11 @@ export default function TransactionPage(): JSX.Element {
             header: 'Date',
             cell: ({ row }) => {
                 const createdAt = new Date(row.getValue('createdAt'))
-        
+
                 // Format the date and time using date-fns
                 const formattedDate = format(createdAt, 'yyyy-MM-dd')
                 const formattedTime = format(createdAt, 'HH:mm')
-        
+
                 return (
                     <div className="text-left">
                         <div className="text-xs text-gray-500">
@@ -155,7 +151,7 @@ export default function TransactionPage(): JSX.Element {
                     </div>
                 )
             },
-        }
+        },
     ]
 
     return (

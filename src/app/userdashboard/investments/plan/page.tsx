@@ -70,7 +70,6 @@ const InvestmentPlan = () => {
         }
         const fetchData = async () => {
             const response = await fetchPlansData()
-            // console.log(response)
             setPlans(response)
         }
         fetchData()
@@ -132,7 +131,6 @@ const InvestmentPlan = () => {
                 isClosable: true,
                 position: 'bottom',
             })
-            console.log('Investment successful', res)
             onClose() // Close modal on success
         } catch (error: any) {
             console.error('Investment failed', error)

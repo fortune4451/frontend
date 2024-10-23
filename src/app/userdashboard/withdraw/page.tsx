@@ -38,7 +38,6 @@ const Withdraw = () => {
                     })
 
                     setBalance(data.interest)
-                    console.log(`this is the balance ${balance}`)
                 } catch (error) {
                     console.error('Error fetching Deposit Wallet data:', error)
                     throw error
@@ -75,14 +74,6 @@ const Withdraw = () => {
                     address,
                 },
             })
-
-            // console.log(response)
-
-            // Send a WhatsApp message to the admin upon successful withdrawal request
-            // await axios.post('/api/send-whatsapp', {
-            //     message: `Withdrawal request: \nAmount: $${withdrawAmount}\nGateway: ${gateway}\nAddress: ${address}`, // Construct message
-            //     adminContact: '+1234567890', // Placeholder for the admin's WhatsApp number
-            // })
 
             toast({
                 title: 'Success',
