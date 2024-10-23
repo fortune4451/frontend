@@ -48,7 +48,7 @@ export default function TransactionPage(): JSX.Element {
                         transaction.type.slice(1),
                     status: transaction.status,
                     isApproved: transaction.isApproved,
-                    createdAt: new Date(transaction.createdAt).toLocaleString(),
+                    createdAt: transaction.createdAt,
                 }))
 
                 setData(formattedData.reverse())
