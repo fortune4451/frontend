@@ -138,15 +138,15 @@ export default function TransactionPage(): JSX.Element {
             header: 'Date',
             cell: ({ row }) => {
                 const createdAt = new Date(row.getValue('createdAt'))
-
-                // Format the date and time using date-fns
-                const formattedDate = format(createdAt, 'yyyy-MM-dd')
-                const formattedTime = format(createdAt, 'HH:mm')
-
+                const date = createdAt.toLocaleDateString()
+                const time = createdAt.toLocaleTimeString([], {
+                    hour: '2-digit',
+                    minute: '2-digit',
+                })
                 return (
                     <div className="text-left">
                         <div className="text-xs text-gray-500">
-                            {formattedDate} at {formattedTime}
+                            {date} at {time}
                         </div>
                     </div>
                 )
