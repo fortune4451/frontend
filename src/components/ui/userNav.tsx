@@ -116,8 +116,7 @@ export const UserNavbar = () => {
                     firstName: data.firstname,
                     lastName: data.lastname,
                     depositWallet: data.DepositWallet.availableBal,
-                    interestWallet:
-                        interest.data.availableBal + interest.data.totalEarned, // update if more fields are available
+                    interestWallet: interest.data.interest, // update if more fields are available
                 }
 
                 setUserData(updatedData)
