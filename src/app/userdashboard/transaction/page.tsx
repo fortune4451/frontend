@@ -137,16 +137,24 @@ export default function TransactionPage(): JSX.Element {
             accessorKey: 'createdAt',
             header: 'Date',
             cell: ({ row }) => {
-                const createdAt = new Date(row.getValue('createdAt'))
-                const date = createdAt.toLocaleDateString()
-                const time = createdAt.toLocaleTimeString([], {
-                    hour: '2-digit',
-                    minute: '2-digit',
-                })
+                // Get createdAt value and ensure it's a valid string
+                const createdAt = row.getValue('createdAt') as
+                    | string
+                    | undefined
+
+                // Handle undefined or invalid date scenarios
+                if (!createdAt || isNaN(new Date(createdAt).getTime())) {
+                    return <div className="text-left">Invalid Date</div>
+                }
+
+                // Format the date and time using date-fns
+                const formattedDate = format(new Date(createdAt), 'MM/dd/yyyy')
+                const formattedTime = format(new Date(createdAt), 'hh:mm a')
+
                 return (
                     <div className="text-left">
                         <div className="text-xs text-gray-500">
-                            {date} at {time}
+                            {formattedDate} at {formattedTime}
                         </div>
                     </div>
                 )
