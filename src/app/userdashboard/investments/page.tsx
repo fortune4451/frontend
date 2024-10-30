@@ -267,14 +267,18 @@ const InvestmentPage = () => {
                                             </h3>
                                             <p>
                                                 $
-                                                {(plan.amountInvested *
-                                                    Number(plan.plan.rate)) /
-                                                    100}{' '}
+                                                {Math.round(
+                                                    plan.amountInvested *
+                                                        Number(plan.plan.rate),
+                                                ) / 100}{' '}
                                                 x 5 = $
-                                                {((plan.amountInvested *
-                                                    Number(plan.plan.rate)) /
-                                                    100) *
-                                                    5}
+                                                {Math.round(
+                                                    (plan.amountInvested *
+                                                        Number(
+                                                            plan.plan.rate,
+                                                        )) /
+                                                        100,
+                                                ) * 5}
                                             </p>
                                         </div>
                                     </div>
