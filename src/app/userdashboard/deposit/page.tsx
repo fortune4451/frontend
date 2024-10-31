@@ -13,6 +13,7 @@ import Link from 'next/link'
 import { useRouter } from 'next/navigation' // Use next/navigation for router navigation
 
 const DepositAndConfirmation = () => {
+    const [uploadedFile, setUploadedFile] = useState(null);
     const toast = useToast() // Initialize Chakra UI's toast
     const { isOpen, onOpen, onClose } = useDisclosure() // Chakra UI modal controls
     const [isConfirmed, setIsConfirmed] = useState(false)
@@ -229,7 +230,7 @@ const DepositAndConfirmation = () => {
                         </h1>
 
                         {/* Wallet Address Display */}
-                        <div className="mt-4">
+                        <div className="mt-4 flex flex-col gap-2">
                             <p>
                                 You have requested{' '}
                                 <strong>{formatCurrency(amount)}</strong>.
@@ -250,6 +251,7 @@ const DepositAndConfirmation = () => {
                             >
                                 {walletAddresses[gateway]}
                             </p>
+                            <Input type="file" accept="image/*"  required className="mt-4" />
                         </div>
 
                         <div className="mt-6 w-full">
