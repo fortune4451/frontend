@@ -17,6 +17,7 @@ import {
 } from '@/components/ui/dropdown-menu'
 import { baseUrl } from '@/utils/constants'
 import { useToast } from '@chakra-ui/react'
+import { AiOutlineClose } from 'react-icons/ai'
 
 type Props = {}
 
@@ -40,6 +41,8 @@ export default function UsersPage({}: Props): JSX.Element {
     const [token, setToken] = useState<string | null>(null)
     const [loading, setLoading] = useState(true)
     const toast = useToast()
+    const [isModalOpen, setIsModalOpen] = useState(false)
+    const [receiptImage, setReceiptImage] = useState<string | null>(null)
 
     // Fetch pending transactions data from the API and refresh every 3 seconds
     useEffect(() => {
@@ -172,6 +175,27 @@ export default function UsersPage({}: Props): JSX.Element {
             })
     }
 
+    const handleViewReceipt = async (uuid: string) => {
+        try {
+            const response = await axios({
+                method: 'GET',
+                url: `${baseUrl}/transactions/${uuid}/receipt`,
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                },
+            })
+            setReceiptImage(response.data.receiptImageUrl)
+            setIsModalOpen(true)
+        } catch (error) {
+            console.error('Error fetching receipt:', error)
+        }
+    }
+
+    const closeModal = () => {
+        setIsModalOpen(false)
+        setReceiptImage(null)
+    }
+
     const columns: ColumnDef<Transaction>[] = [
         {
             accessorKey: 'user',
@@ -275,32 +299,40 @@ export default function UsersPage({}: Props): JSX.Element {
                                 Pending Transactions
                             </DropdownMenuLabel>
                             <DropdownMenuSeparator />
-                            <DropdownMenuItem
-                                onClick={() => handleApprove(uuid)}
-                            >
+                            <DropdownMenuItem onClick={() => handleApprove(uuid)}>
                                 Approve
                             </DropdownMenuItem>
-                            <DropdownMenuItem
-                                onClick={() => handleDecline(uuid)}
-                            >
+                            <DropdownMenuItem onClick={() => handleDecline(uuid)}>
                                 Decline
                             </DropdownMenuItem>
-                            <DropdownMenuItem
-                                onClick={() => handleCopyAddress(walletAddress)}
-                            >
+                            <DropdownMenuItem onClick={() => handleCopyAddress(walletAddress)}>
                                 Copy Address
+                            </DropdownMenuItem>
+                            <DropdownMenuItem onClick={() => handleViewReceipt(uuid)}>
+                                Receipt
                             </DropdownMenuItem>
                         </DropdownMenuContent>
                     </DropdownMenu>
                 )
             },
         },
-    ]
+    ]//
 
     return (
-        <div className="flex flex-col gap-5 w-full bg-white p-3">
+        <div className="flex flex-col gap-5 w-full bg-we p-3">
             <PageTitle title="Users Transactions" />
             <DataTable columns={columns} data={data} />
+
+            {isModalOpen && receiptImage && (
+                <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
+                    <div className="bg-white p-5 rounded-lg shadow-lg max-w-md w-full relative">
+                        <button className="absolute top-2 right-2 text-gray-600" onClick={closeModal}>
+                            <AiOutlineClose size={20} />
+                        </button>
+                        <img src={receiptImage} alt="Receipt" className="max-w-full h-auto" />
+                    </div>
+                </div>
+            )}
         </div>
     )
 }
