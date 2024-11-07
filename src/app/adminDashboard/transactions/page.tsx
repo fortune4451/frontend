@@ -15,9 +15,10 @@ import {
     DropdownMenuSeparator,
     DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
-import { baseUrl } from '@/utils/constants'
+import { baseUrl, baseUrlStatic } from '@/utils/constants'
 import { useToast } from '@chakra-ui/react'
 import { AiOutlineClose } from 'react-icons/ai'
+import Image from 'next/image'
 
 type Props = {}
 
@@ -43,6 +44,8 @@ export default function UsersPage({}: Props): JSX.Element {
     const toast = useToast()
     const [isModalOpen, setIsModalOpen] = useState(false)
     const [receiptImage, setReceiptImage] = useState<string | null>(null)
+
+    console.log(receiptImage, isModalOpen)
 
     // Fetch pending transactions data from the API and refresh every 3 seconds
     useEffect(() => {
@@ -175,16 +178,12 @@ export default function UsersPage({}: Props): JSX.Element {
             })
     }
 
-    const handleViewReceipt = async (uuid: string) => {
+    const handleViewReceipt = async (imageUrl: string) => {
+        console.log(imageUrl, 'Yhisk ieklqwopioui;jwbK')
         try {
-            const response = await axios({
-                method: 'GET',
-                url: `${baseUrl}/transactions/${uuid}/receipt`,
-                headers: {
-                    Authorization: `Bearer ${token}`,
-                },
-            })
-            setReceiptImage(response.data.receiptImageUrl)
+            imageUrl
+                ? setReceiptImage(`${baseUrlStatic}${imageUrl}`)
+                : setReceiptImage(null)
             setIsModalOpen(true)
         } catch (error) {
             console.error('Error fetching receipt:', error)
@@ -299,16 +298,45 @@ export default function UsersPage({}: Props): JSX.Element {
                                 Pending Transactions
                             </DropdownMenuLabel>
                             <DropdownMenuSeparator />
-                            <DropdownMenuItem onClick={() => handleApprove(uuid)}>
+                            <DropdownMenuItem
+                                onClick={() => handleApprove(uuid)}
+                            >
                                 Approve
                             </DropdownMenuItem>
-                            <DropdownMenuItem onClick={() => handleDecline(uuid)}>
+                            <DropdownMenuItem
+                                onClick={() => handleDecline(uuid)}
+                            >
                                 Decline
                             </DropdownMenuItem>
-                            <DropdownMenuItem onClick={() => handleCopyAddress(walletAddress)}>
+                            <DropdownMenuItem
+                                onClick={() => handleCopyAddress(walletAddress)}
+                            >
                                 Copy Address
                             </DropdownMenuItem>
-                            <DropdownMenuItem onClick={() => handleViewReceipt(uuid)}>
+                        </DropdownMenuContent>
+                    </DropdownMenu>
+                )
+            },
+        },
+        {
+            accessorKey: 'imageUrl',
+            header: 'Receipt',
+            cell: ({ row }) => {
+                const imageUrl = row.getValue('imageUrl') as string
+                return (
+                    <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                            <div className="flex items-center gap-2 p-2 border rounded cursor-pointer">
+                                <HiViewGridAdd size={18} />
+                                <span className="hidden sm:block">Actions</span>
+                            </div>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end">
+                            <DropdownMenuLabel>Actions</DropdownMenuLabel>
+                            <DropdownMenuSeparator />
+                            <DropdownMenuItem
+                                onClick={() => handleViewReceipt(imageUrl)}
+                            >
                                 Receipt
                             </DropdownMenuItem>
                         </DropdownMenuContent>
@@ -316,7 +344,7 @@ export default function UsersPage({}: Props): JSX.Element {
                 )
             },
         },
-    ]//
+    ] //
 
     return (
         <div className="flex flex-col gap-5 w-full bg-we p-3">
@@ -326,10 +354,17 @@ export default function UsersPage({}: Props): JSX.Element {
             {isModalOpen && receiptImage && (
                 <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
                     <div className="bg-white p-5 rounded-lg shadow-lg max-w-md w-full relative">
-                        <button className="absolute top-2 right-2 text-gray-600" onClick={closeModal}>
+                        <button
+                            className="absolute top-2 right-2 text-gray-600"
+                            onClick={closeModal}
+                        >
                             <AiOutlineClose size={20} />
                         </button>
-                        <img src={receiptImage} alt="Receipt" className="max-w-full h-auto" />
+                        <img
+                            src={receiptImage}
+                            alt="Receipt"
+                            className="max-w-full h-auto w-auto"
+                        />
                     </div>
                 </div>
             )}
