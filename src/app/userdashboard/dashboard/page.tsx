@@ -281,6 +281,8 @@ const UserDashboard = () => {
         },
     ]
 
+    console.log('Profit', profit)
+
     /* eslint-disable react/no-unescaped-entities */
     return (
         <div className="flex flex-col w-full gap-5">
