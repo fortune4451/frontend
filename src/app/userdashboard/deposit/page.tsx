@@ -1,9 +1,20 @@
 'use client' // Marks this component as a client-side component in Next.js
 
-import { useEffect, useState } from 'react' // Import React hooks for state management
+import { ChangeEvent, useEffect, useState } from 'react' // Import React hooks for state management
 import { useDeposit } from '@/components/depositContext' // Custom hook to manage deposit-related state
 import { AiOutlineArrowLeft } from 'react-icons/ai' // Icon for "back" button
-import { ChakraProvider, useToast, Button as ChakraButton, Modal, ModalOverlay, ModalContent, ModalHeader, ModalBody, ModalFooter, useDisclosure } from '@chakra-ui/react' // Chakra UI components
+import {
+    ChakraProvider,
+    useToast,
+    Button as ChakraButton,
+    Modal,
+    ModalOverlay,
+    ModalContent,
+    ModalHeader,
+    ModalBody,
+    ModalFooter,
+    useDisclosure,
+} from '@chakra-ui/react' // Chakra UI components
 import { HeaderContent } from '@/components/ui/cardContent' // Custom component for displaying header content
 import { Select, Input } from '@chakra-ui/react' // Chakra UI components for form inputs
 import { Button } from '@/components/ui/button' // Custom button component
@@ -13,6 +24,7 @@ import Link from 'next/link'
 import { useRouter } from 'next/navigation' // Use next/navigation for router navigation
 
 const DepositAndConfirmation = () => {
+    const [uploadedFile, setUploadedFile] = useState<File | null>(null)
     const toast = useToast() // Initialize Chakra UI's toast
     const { isOpen, onOpen, onClose } = useDisclosure() // Chakra UI modal controls
     const [isConfirmed, setIsConfirmed] = useState(false)
@@ -23,12 +35,18 @@ const DepositAndConfirmation = () => {
     const [isPaymentProcessing, setIsPaymentProcessing] = useState(false) // State to disable button during payment processing
     const router = useRouter() // Router for navigation
 
+    const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+        if (event.target.files && event.target.files[0]) {
+            setUploadedFile(event.target.files[0])
+        }
+    }
     // Custom hook values from deposit context
     const { gateway, amount, setGateway, setAmount } = useDeposit()
 
     useEffect(() => {
         if (typeof window !== 'undefined') {
-            const storedToken = sessionStorage.getItem('token') || localStorage.getItem('token')
+            const storedToken =
+                sessionStorage.getItem('token') || localStorage.getItem('token')
             setToken(storedToken)
         }
     })
@@ -57,7 +75,8 @@ const DepositAndConfirmation = () => {
             .then(() => {
                 toast({
                     title: 'Wallet address copied!',
-                    description: 'The wallet address has been successfully copied to your clipboard.',
+                    description:
+                        'The wallet address has been successfully copied to your clipboard.',
                     status: 'success',
                     duration: 3000,
                     isClosable: true,
@@ -66,7 +85,8 @@ const DepositAndConfirmation = () => {
             .catch(err => {
                 toast({
                     title: 'Error copying address',
-                    description: 'Failed to copy the wallet address. Please try again.',
+                    description:
+                        'Failed to copy the wallet address. Please try again.',
                     status: 'error',
                     duration: 3000,
                     isClosable: true,
@@ -80,20 +100,29 @@ const DepositAndConfirmation = () => {
     }
 
     const handlePayNow = async () => {
+        console.log('THIS IS THE UPLOADED FILE:', uploadedFile)
         try {
+            // Create a new FormData instance
+            const formData = new FormData()
+
+            // Append the file and other transaction parameters
+
+            formData.append('image', uploadedFile!)
+            formData.append('amount', inputAmount.toString())
+            formData.append('type', 'deposit')
+            formData.append('gateway', gateway)
+            formData.append('address', walletAddresses[gateway])
+
             const response = await axios({
                 method: 'POST',
                 url: `${baseUrl}/transactions`,
                 headers: {
                     Authorization: `Bearer ${token}`,
                 },
-                data: {
-                    amount: inputAmount,
-                    type: 'deposit',
-                    gateway: gateway,
-                    address: walletAddresses[gateway],
-                },
+                data: formData,
             })
+
+            console.log(response)
 
             if (response.status === 200) {
                 toast({
@@ -116,6 +145,18 @@ const DepositAndConfirmation = () => {
     const confirmPayment = async () => {
         setIsPaymentProcessing(true)
         try {
+            if (!uploadedFile) {
+                toast({
+                    title: 'Please upload proof of payment',
+                    description:
+                        'You cannot proceed without uploading proof of payment',
+                    status: 'success',
+                    duration: 3000,
+                    isClosable: true,
+                })
+                throw Error
+            }
+
             await handlePayNow()
             onClose()
             router.push('/userdashboard/deposit')
@@ -155,14 +196,18 @@ const DepositAndConfirmation = () => {
                         {/* Your original form */}
                         {/* Header */}
                         <div className="flex flex-col gap-2">
-                            <HeaderContent className="text-[#0a0f57]">Deposit Funds</HeaderContent>
+                            <HeaderContent className="text-[#0a0f57]">
+                                Deposit Funds
+                            </HeaderContent>
                             <p className="text-xs md:text-base">
                                 Add funds through our secure payment gateway...
                             </p>
                         </div>
                         <div className="sm:text-right">
                             <Link href="/userdashboard/transaction">
-                                <Button className="bg-[#0a0f57] text-white">Deposit History</Button>
+                                <Button className="bg-[#0a0f57] text-white">
+                                    Deposit History
+                                </Button>
                             </Link>
                         </div>
                         <form
@@ -171,8 +216,14 @@ const DepositAndConfirmation = () => {
                         >
                             {/* Select Gateway Input */}
                             <div className="mb-4">
-                                <label className="block mb-2">Select Gateway</label>
-                                <Select name="gateway" className="border p-2 rounded w-full" required>
+                                <label className="block mb-2">
+                                    Select Gateway
+                                </label>
+                                <Select
+                                    name="gateway"
+                                    className="border p-2 rounded w-full"
+                                    required
+                                >
                                     <option value="">Select One</option>
                                     <option value="USDT">USDT (Trc 20)</option>
                                     <option value="BNB">BNB</option>
@@ -191,7 +242,9 @@ const DepositAndConfirmation = () => {
                                     type="number"
                                     className="border p-2 rounded w-full"
                                     value={inputAmount}
-                                    onChange={e => setInputAmount(e.target.value)}
+                                    onChange={e =>
+                                        setInputAmount(e.target.value)
+                                    }
                                     onFocus={() => setIsAmountFocused(true)}
                                     onBlur={() => setIsAmountFocused(false)}
                                     min="10"
@@ -201,25 +254,35 @@ const DepositAndConfirmation = () => {
                                 {isAmountFocused && (
                                     <div className="mt-2 border p-4 rounded bg-gray-100">
                                         <p>
-                                            <strong>Limit:</strong> {formatCurrency(10)} - {formatCurrency(limit)}
+                                            <strong>Limit:</strong>{' '}
+                                            {formatCurrency(10)} -{' '}
+                                            {formatCurrency(limit)}
                                         </p>
                                         <p>
-                                            <strong>Charge:</strong> {formatCurrency(charge)}
+                                            <strong>Charge:</strong>{' '}
+                                            {formatCurrency(charge)}
                                         </p>
                                         <p>
-                                            <strong>Payable:</strong> {formatCurrency(payableAmount)}
+                                            <strong>Payable:</strong>{' '}
+                                            {formatCurrency(payableAmount)}
                                         </p>
                                     </div>
                                 )}
                             </div>
-                            <Button type="submit" className="w-full text-lg bg-[#0a0f57]">
+                            <Button
+                                type="submit"
+                                className="w-full text-lg bg-[#0a0f57]"
+                            >
                                 Submit
                             </Button>
                         </form>
                     </div>
                 ) : (
                     <div className="flex flex-col items-center bg-white p-4 rounded-lg border shadow ">
-                        <button className="flex items-center mb-4 text-blue-500" onClick={handleBack}>
+                        <button
+                            className="flex items-center mb-4 text-blue-500"
+                            onClick={handleBack}
+                        >
                             <AiOutlineArrowLeft className="mr-2" />
                             Back to Deposit
                         </button>
@@ -229,7 +292,7 @@ const DepositAndConfirmation = () => {
                         </h1>
 
                         {/* Wallet Address Display */}
-                        <div className="mt-4">
+                        <div className="mt-4 flex flex-col gap-2">
                             <p>
                                 You have requested{' '}
                                 <strong>{formatCurrency(amount)}</strong>.
@@ -250,13 +313,20 @@ const DepositAndConfirmation = () => {
                             >
                                 {walletAddresses[gateway]}
                             </p>
+                            <Input
+                                type="file"
+                                accept="image/*"
+                                onChange={handleFileChange}
+                                required
+                                className="mt-4"
+                            />
                         </div>
 
                         <div className="mt-6 w-full">
                             <Button
                                 className="w-full text-lg bg-[#0a0f57] text-white"
                                 onClick={onOpen}
-                                disabled={isPaymentProcessing} // Disable button during payment processing
+                                disabled={!uploadedFile || isPaymentProcessing} // Disable button during payment processing
                             >
                                 Pay Now
                             </Button>
@@ -271,7 +341,8 @@ const DepositAndConfirmation = () => {
                 <ModalContent>
                     <ModalHeader>Confirm Payment</ModalHeader>
                     <ModalBody>
-                        Are you sure you want to proceed with this deposit of {formatCurrency(parseFloat(inputAmount))}?
+                        Are you sure you want to proceed with this deposit of{' '}
+                        {formatCurrency(parseFloat(inputAmount))}?
                     </ModalBody>
                     <ModalFooter>
                         <ChakraButton onClick={onClose}>Cancel</ChakraButton>
