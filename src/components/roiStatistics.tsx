@@ -26,6 +26,7 @@ import {
     CardHeader,
     CardTitle,
 } from '@/components/ui/card'
+import { format, subDays } from 'date-fns'
 
 const chartConfig = {
     Profit: {
@@ -38,15 +39,39 @@ interface RoiChartProps {
     data: Array<{ date: string; profit: number }>
 }
 
+const preprocessData = (rawData: { date: string; profit: number }[]) => {
+    // Generate the last 30 days' dates
+    const last30Days = Array.from({ length: 30 }, (_, i) =>
+        format(subDays(new Date(), i), 'yyyy-MM-dd'),
+    ).reverse()
+
+    // Aggregate profits by date
+    const profitMap: Record<string, number> = {}
+    rawData.forEach(({ date, profit }) => {
+        const formattedDate = format(new Date(date), 'yyyy-MM-dd')
+        profitMap[formattedDate] = (profitMap[formattedDate] || 0) + profit * 1
+    })
+
+    // Ensure every date has an entry, set profit to 0 if missing
+    const processedData = last30Days.map(date => ({
+        date,
+        Profit: profitMap[date] || 0,
+    }))
+
+    return processedData
+}
+
 const RoiChart = ({ data = [] }: RoiChartProps) => {
-    const chartWidth = data.length > 20 ? data.length * 50 : '100%'
+    const processedData = preprocessData(data)
+    const chartWidth =
+        processedData.length > 20 ? processedData.length * 50 : '100%'
 
     return (
         <Card>
             <CardHeader>
                 <CardTitle>Latest ROI Statistics</CardTitle>
                 <CardDescription>
-                    Here is last 30 days statistics of your ROI (Return on
+                    Here is the last 30 days statistics of your ROI (Return on
                     Investment)
                 </CardDescription>
             </CardHeader>
@@ -61,7 +86,7 @@ const RoiChart = ({ data = [] }: RoiChartProps) => {
                             className="min-h-[200px] w-full h-[300px]"
                         >
                             <BarChart
-                                data={data}
+                                data={processedData}
                                 margin={{ left: 12, right: 12 }}
                             >
                                 <CartesianGrid vertical={false} />
@@ -87,7 +112,7 @@ const RoiChart = ({ data = [] }: RoiChartProps) => {
                                 <ChartLegend content={<ChartLegendContent />} />
                                 <Bar
                                     dataKey="Profit"
-                                    fill="var(--color-Amount)"
+                                    fill="orange"
                                     radius={4}
                                 />
                             </BarChart>
