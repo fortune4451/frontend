@@ -227,7 +227,7 @@ export const UserNavbar = () => {
                                                 Interest Wallet:
                                             </p>
                                             <span>
-                                                {userData.interestWallet}.00
+                                                $ {userData.interestWallet}.00
                                             </span>
                                         </div>
                                         {/* Content */}
