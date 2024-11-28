@@ -14,6 +14,7 @@ import {
 import { useWindowWidth } from '@react-hook/window-size'
 import axios from 'axios'
 import { baseUrl } from '@/utils/constants'
+import { useRouter } from 'next/navigation'
 
 type SideNavbarProps = {
     children: React.ReactNode
@@ -30,6 +31,7 @@ export default function SideNavbar({ children }: SideNavbarProps) {
         depositWallet: 0,
         interestWallet: 0,
     })
+    const router = useRouter()
 
     // Fetch user data from the backend
     useEffect(() => {
@@ -144,6 +146,14 @@ export default function SideNavbar({ children }: SideNavbarProps) {
                             href: '/',
                             icon: LogOut,
                             variant: 'ghost',
+                            onLogOut: () => {
+                                console.log('Logging out')
+                                localStorage.removeItem('token')
+                                localStorage.removeItem('dashboardData')
+                                localStorage.removeItem('profitData')
+
+                                router.push('/login')
+                            },
                         },
                     ]}
                 />

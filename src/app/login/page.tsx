@@ -1,7 +1,7 @@
 'use client'
 
 import Link from 'next/link'
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { FaEye, FaEyeSlash } from 'react-icons/fa'
 import { Input, Spinner } from '@chakra-ui/react' // Import Chakra UI Spinner
 import { baseUrl } from '@/utils/constants'
@@ -9,13 +9,20 @@ import { useRouter } from 'next/navigation'
 import { ChartNoAxesCombined } from 'lucide-react'
 
 const LoginPage = () => {
-    const router = useRouter();
+    const router = useRouter()
     const [identifier, setIdentifier] = useState('') // Unified identifier for both email and username
     const [password, setPassword] = useState('')
     const [error, setError] = useState('')
     const [showPassword, setShowPassword] = useState(false)
     const [keepLoggedIn, setKeepLoggedIn] = useState(false)
     const [isLoading, setIsLoading] = useState(false) // New state for loading spinner
+
+    useEffect(() => {
+        const authToken = localStorage.getItem('token')
+        if (authToken) {
+            router.push('/userdashboard/dashboard')
+        }
+    })
 
     // Backend login function
     const handleLogin = async (e: React.FormEvent<HTMLFormElement>) => {
@@ -67,7 +74,7 @@ const LoginPage = () => {
             <div className="bg-white p-6 sm:p-8 rounded-xl w-[90vw] sm:w-[60vw] lg:w-[50vw] flex flex-col gap-5">
                 <div className="flex flex-col gap-1  text-center w-full ">
                     <a href="/" className="flex justify-around mb-3">
-                        <div className='flex items-center'>
+                        <div className="flex items-center">
                             <ChartNoAxesCombined
                                 size={23}
                                 color="#e99a2b"

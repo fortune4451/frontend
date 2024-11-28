@@ -26,7 +26,6 @@ import {
     useDisclosure,
 } from '@chakra-ui/react'
 import { Button } from '@/components/ui/button'
-import Image from 'next/image'
 import { baseUrl } from '@/utils/constants'
 import axios from 'axios'
 
@@ -61,7 +60,19 @@ export const UserNavbar = () => {
             icon: Waypoints,
         },
         { label: 'Profile', href: '/userdashboard/profile', icon: User2Icon },
-        { label: 'Log Out', href: '/', icon: LogOut },
+        {
+            label: 'Log Out',
+            href: '/',
+            icon: LogOut,
+            onLogOut: () => {
+                console.log('Logging out')
+                localStorage.removeItem('token')
+                localStorage.removeItem('dashboardData')
+                localStorage.removeItem('profitData')
+
+                router.push('/login')
+            },
+        },
     ]
 
     useEffect(() => {
@@ -235,11 +246,15 @@ export const UserNavbar = () => {
                                             {links.map(link => (
                                                 <div
                                                     key={link.href}
-                                                    onClick={() =>
-                                                        handleLinkClick(
-                                                            link.href,
-                                                        )
-                                                    }
+                                                    onClick={() => {
+                                                        if (!link.onLogOut) {
+                                                            handleLinkClick(
+                                                                link.href,
+                                                            )
+                                                        } else {
+                                                            link.onLogOut()
+                                                        }
+                                                    }}
                                                     className={`flex items-center gap-2 p-2 pl-2 rounded-md ${
                                                         pathname === link.href
                                                             ? 'bg-blue-700 text-white'
