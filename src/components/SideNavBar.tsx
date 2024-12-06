@@ -152,7 +152,7 @@ export default function SideNavbar({ children }: SideNavbarProps) {
                                 localStorage.removeItem('dashboardData')
                                 localStorage.removeItem('profitData')
 
-                                router.push('/login')
+                                router.push('/')
                             },
                         },
                     ]}

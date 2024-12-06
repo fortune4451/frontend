@@ -70,7 +70,7 @@ export const UserNavbar = () => {
                 localStorage.removeItem('dashboardData')
                 localStorage.removeItem('profitData')
 
-                router.push('/login')
+                router.push('/')
             },
         },
     ]
