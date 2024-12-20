@@ -112,8 +112,8 @@ const UserDashboard = () => {
 
     useEffect(() => {
         const fetchDashboardData = async () => {
+            setLoading(true) // Start loading
             try {
-                setLoading(true) // Start loading
                 const transactions = await fetchUserTransactions()
                 const walletData = await fetchDepositWalletData()
                 const investmentData = await fetchInvestmentWalletData()
@@ -185,10 +185,9 @@ const UserDashboard = () => {
                         investmentData.totalEarned.toLocaleString(),
                     depositFromWallet: `${totalInvestments.toLocaleString()}`,
                 })
+                setLoading(false)
             } catch (error) {
                 console.error('Error fetching dashboard data:', error)
-            } finally {
-                setLoading(false) // End loading
             }
         }
 
