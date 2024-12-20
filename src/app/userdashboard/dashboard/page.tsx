@@ -28,6 +28,7 @@ const UserDashboard = () => {
 
     const [token, setToken] = useState<string | null>(null)
     const [profit, setProfit] = useState<any>()
+    const [loading, setLoading] = useState(true) // Loading state
 
     const fetchDepositWalletData = async () => {
         try {
@@ -110,135 +111,93 @@ const UserDashboard = () => {
     }
 
     useEffect(() => {
-        // Retrieve saved data from localStorage
-        const savedDashboardData = localStorage.getItem('dashboardData')
-        const savedProfitData = localStorage.getItem('profitData')
+        const fetchDashboardData = async () => {
+            try {
+                setLoading(true) // Start loading
+                const transactions = await fetchUserTransactions()
+                const walletData = await fetchDepositWalletData()
+                const investmentData = await fetchInvestmentWalletData()
+                const userPlansData = await fetchUserPlansData()
+                const userProfits = await fetchUserDailyProfits()
 
-        if (savedDashboardData) {
-            setDashboardData(JSON.parse(savedDashboardData))
-        }
-        if (savedProfitData) {
-            setProfit(JSON.parse(savedProfitData))
-        }
+                let totalInvestments = 0
+                let runningInvestments = 0
+                let completedInvestments = 0
+                userPlansData.forEach((plan: any) => {
+                    totalInvestments += plan.amountInvested * 1
+                    if (plan.isActive === true) {
+                        runningInvestments += plan.amountInvested * 1
+                    }
+                    if (plan.isActive === false) {
+                        completedInvestments += plan.amountInvested * 1
+                    }
+                })
 
-        if (typeof window !== 'undefined') {
-            const storedToken =
-                sessionStorage.getItem('token') || localStorage.getItem('token')
-            setToken(storedToken)
-        }
+                const deposits = transactions.filter(
+                    (item: { type: string }) => item.type === 'deposit',
+                )
+                const withdrawals = transactions.filter(
+                    (item: { type: string }) => item.type === 'withdrawal',
+                )
 
-        if (token) {
-            const fetchDashboardData = async () => {
-                try {
-                    const transactions = await fetchUserTransactions()
-                    const walletData = await fetchDepositWalletData()
-                    const investmentData = await fetchInvestmentWalletData()
-                    const userPlansData = await fetchUserPlansData()
-                    const userProfits = await fetchUserDailyProfits()
+                let submittedDeposits = 0
+                let pendingDeposits = 0
+                let rejectedDeposits = 0
+                let submittedWithdrawals = 0
+                let pendingWithdrawals = 0
+                let rejectedWithdrawals = 0
 
-                    let totalInvestments = 0
-                    let runningInvestments = 0
-                    let completedInvestments = 0
-                    userPlansData.forEach((plan: any) => {
-                        totalInvestments += plan.amountInvested * 1
-                        if (plan.isActive === true) {
-                            runningInvestments += plan.amountInvested * 1
-                        }
-                        if (plan.isActive === false) {
-                            completedInvestments += plan.amountInvested * 1
-                        }
-                    })
+                deposits.forEach((item: any) => {
+                    submittedDeposits += item.amount * 1
+                    if (item.status === 'pending') {
+                        pendingDeposits += item.amount * 1
+                    }
+                    if (item.status === 'failed') {
+                        rejectedDeposits += item.amount * 1
+                    }
+                })
 
-                    const deposits = transactions.filter(
-                        (item: { type: string }) => item.type === 'deposit',
-                    )
-                    const withdrawals = transactions.filter(
-                        (item: { type: string }) => item.type === 'withdrawal',
-                    )
+                withdrawals.forEach((item: any) => {
+                    submittedWithdrawals += item.amount * 1
+                    if (item.status === 'pending') {
+                        pendingWithdrawals += item.amount * 1
+                    }
+                    if (item.status === 'failed') {
+                        rejectedWithdrawals += item.amount * 1
+                    }
+                })
 
-                    let submittedDeposits = 0
-                    let pendingDeposits = 0
-                    let rejectedDeposits = 0
-                    let submittedWithdrawals = 0
-                    let pendingWithdrawals = 0
-                    let rejectedWithdrawals = 0
-
-                    deposits.forEach((item: any) => {
-                        submittedDeposits += item.amount * 1
-                        if (item.status === 'pending') {
-                            pendingDeposits += item.amount * 1
-                        }
-                        if (item.status === 'failed') {
-                            rejectedDeposits += item.amount * 1
-                        }
-                    })
-
-                    withdrawals.forEach((item: any) => {
-                        submittedWithdrawals += item.amount * 1
-                        if (item.status === 'pending') {
-                            pendingWithdrawals += item.amount * 1
-                        }
-                        if (item.status === 'failed') {
-                            rejectedWithdrawals += item.amount * 1
-                        }
-                    })
-
-                    // Set the fetched data to state
-                    setProfit(userProfits)
-                    setDashboardData(prevData => ({
-                        ...prevData,
-                        submitedDeposits: `${submittedDeposits.toLocaleString()}`,
-                        pendingDeposits: `${pendingDeposits.toLocaleString()}`,
-                        rejectedDeposits: `${rejectedDeposits.toLocaleString()}`,
-                        totalDeposits: walletData.totalDeposit.toLocaleString(),
-                        submitedWithdrawal: `${submittedWithdrawals.toLocaleString()}`,
-                        pendingWithdrawal: `${pendingWithdrawals.toLocaleString()}`,
-                        rejectedWithdrawal: `${rejectedWithdrawals.toLocaleString()}`,
-                        totalWithdrawals:
-                            investmentData.totalWithdrawal.toLocaleString(),
-                        completedInvestments: `${completedInvestments.toLocaleString()}`,
-                        runningInvestments: `${runningInvestments.toLocaleString()}`,
-                        interestsInvestments:
-                            investmentData.totalEarned.toLocaleString(),
-                        depositFromWallet: `${totalInvestments.toLocaleString()}`,
-                    }))
-
-                    // Save the fetched data to localStorage
-                    localStorage.setItem(
-                        'dashboardData',
-                        JSON.stringify({
-                            submitedDeposits: `${submittedDeposits.toLocaleString()}`,
-                            pendingDeposits: `${pendingDeposits}`,
-                            rejectedDeposits: `${rejectedDeposits}`,
-                            totalDeposits: walletData.totalDeposit,
-                            submitedWithdrawal: `${submittedWithdrawals}`,
-                            pendingWithdrawal: `${pendingWithdrawals}`,
-                            rejectedWithdrawal: `${rejectedWithdrawals}`,
-                            totalWithdrawals: walletData.totalWithdrawal,
-                            completedInvestments: `${completedInvestments}`,
-                            runningInvestments: `${runningInvestments}`,
-                            interestsInvestments: investmentData.totalEarned,
-                            depositFromWallet: `${totalInvestments}`,
-                        }),
-                    )
-
-                    localStorage.setItem(
-                        'profitData',
-                        JSON.stringify(userProfits),
-                    )
-                } catch (error) {
-                    console.error('Error fetching dashboard data:', error)
-                }
+                // Set the fetched data to state
+                setProfit(userProfits)
+                setDashboardData({
+                    submitedDeposits: `${submittedDeposits.toLocaleString()}`,
+                    pendingDeposits: `${pendingDeposits.toLocaleString()}`,
+                    rejectedDeposits: `${rejectedDeposits.toLocaleString()}`,
+                    totalDeposits: walletData.totalDeposit.toLocaleString(),
+                    submitedWithdrawal: `${submittedWithdrawals.toLocaleString()}`,
+                    pendingWithdrawal: `${pendingWithdrawals.toLocaleString()}`,
+                    rejectedWithdrawal: `${rejectedWithdrawals.toLocaleString()}`,
+                    totalWithdrawals:
+                        investmentData.totalWithdrawal.toLocaleString(),
+                    completedInvestments: `${completedInvestments.toLocaleString()}`,
+                    runningInvestments: `${runningInvestments.toLocaleString()}`,
+                    interestsInvestments:
+                        investmentData.totalEarned.toLocaleString(),
+                    depositFromWallet: `${totalInvestments.toLocaleString()}`,
+                })
+            } catch (error) {
+                console.error('Error fetching dashboard data:', error)
+            } finally {
+                setLoading(false) // End loading
             }
+        }
+
+        const storedToken =
+            sessionStorage.getItem('token') || localStorage.getItem('token')
+        setToken(storedToken)
+
+        if (storedToken) {
             fetchDashboardData()
-
-            // Continuously fetch data every 5 minutes
-            const interval = setInterval(() => {
-                fetchDashboardData()
-            }, 1000) //
-
-            // Clear interval on unmount
-            return () => clearInterval(interval)
         }
     }, [token])
 
@@ -281,27 +240,34 @@ const UserDashboard = () => {
         },
     ]
 
-    /* eslint-disable react/no-unescaped-entities */
     return (
         <div className="flex flex-col w-full gap-5">
-            <section className="grid grid-cols-1 lg:grid-cols-3 gap-4 lg:gap-3 gap-x-8 transition-all duration-600">
-                {cardData.map((d, i) => (
-                    <Card
-                        key={i}
-                        type={d.type}
-                        status1={d.status1}
-                        status2={d.status2}
-                        status3={d.status3}
-                        st1Amount={d.st1Amount}
-                        st2Amount={d.st2Amount}
-                        st3Amount={d.st3Amount}
-                        icon={d.icon}
-                        amount={d.amount}
-                        description={d.description}
-                    />
-                ))}
-            </section>
-            <RoiChart data={profit} />
+            {loading ? (
+                <div className="flex justify-center items-center h-screen">
+                    <div className="spinner"></div>
+                </div>
+            ) : (
+                <>
+                    <section className="grid grid-cols-1 lg:grid-cols-3 gap-4 lg:gap-3 gap-x-8 transition-all duration-600">
+                        {cardData.map((d, i) => (
+                            <Card
+                                key={i}
+                                type={d.type}
+                                status1={d.status1}
+                                status2={d.status2}
+                                status3={d.status3}
+                                st1Amount={d.st1Amount}
+                                st2Amount={d.st2Amount}
+                                st3Amount={d.st3Amount}
+                                icon={d.icon}
+                                amount={d.amount}
+                                description={d.description}
+                            />
+                        ))}
+                    </section>
+                    <RoiChart data={profit} />
+                </>
+            )}
         </div>
     )
 }
